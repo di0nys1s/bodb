@@ -3,7 +3,6 @@
 .DS_Store
 
 android/
-.env/
 
 # Xcode
 #
@@ -60,4 +59,4 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-.env.development
+.env
