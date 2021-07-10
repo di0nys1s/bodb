@@ -22,7 +22,6 @@ const App = () => {
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          console.log(`object`, data.poster_path);
           const {title, success} = data;
           if (success || !title) {
             setMovie('Movie not found');
@@ -73,6 +72,12 @@ const App = () => {
           />
           {/* <Button title="Search Movie" onPress={handleSearch} /> */}
         </View>
+        <Image
+          source={{
+            uri: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
+          }}
+          style={{maxWidth: '100%', height: '80%'}}
+        />
       </View>
     </SafeAreaView>
   );
@@ -80,11 +85,13 @@ const App = () => {
 
 const styles = StyleSheet.create({
   body: {
-    backgroundColor: '#eee',
     padding: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   container: {
-    margin: 20,
+    marginTop: 20,
+    marginBottom: 10,
   },
   header: {
     fontSize: 20,
