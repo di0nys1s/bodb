@@ -104,7 +104,6 @@
 				9F07CC86E2EA06E51E4D26E6 /* Pods-BODB-BODBTests.debug.xcconfig */,
 				DEEC4E0D253F58D5ECC95A46 /* Pods-BODB-BODBTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
