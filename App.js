@@ -2,32 +2,43 @@ import React, {useState} from 'react';
 import {API_URL, API_KEY} from '@env';
 
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TextInput,
   Button,
   Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  Text,
+  View,
 } from 'react-native';
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [movie, setMovie] = useState([]);
+  const [movies, setMovies] = useState([]);
+  const [message, setMessage] = useState('');
+  const [totalMovieResults, setTotalMovieResults] = useState(undefined);
 
   const handleOnChangeSearch = term => {
     setSearchTerm(term);
-    if (term.length) {
-      const url = `${API_URL}/movie/${term}?api_key=${API_KEY}`;
+  };
+
+  const handleSearch = () => {
+    if (searchTerm) {
+      const url = `${API_URL}/search/movie?api_key=${API_KEY}&query=${searchTerm}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          const {title, success} = data;
-          if (success || !title) {
-            setMovie('Movie not found');
+          const {results, total_results: totalResults} = data;
+          setTotalMovieResults(totalResults);
+          if (totalResults > 0) {
+            setMovies(results);
           }
-          if (title) {
-            setMovie(data);
+          if (totalResults === 0) {
+            setMovies([]);
+            setMessage('Movies not found');
+            setTimeout(() => {
+              setMessage('');
+            }, 2000);
           }
         })
         .catch(function (error) {
@@ -37,47 +48,38 @@ const App = () => {
           );
         });
     } else {
-      setMovie('Find your movie...');
+      setMovies([]);
+      setMessage('Please enter a search value');
+      setTimeout(() => {
+        setMessage('');
+      }, 2000);
     }
   };
 
-  // const handleSearch = () => {
-  //   console.log(`searchTerm`, searchTerm);
-  //   const url = `${API_URL}search/movie/?api_key=${API_KEY}&query=jaws`;
-  //   console.log(`url`, url);
-  //   fetch(`${API_URL}search/movie/?api_key=${API_KEY}&query=jaws`)
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       console.log(data);
-  //     })
-  //     .catch(function (error) {
-  //       console.log(
-  //         'There has been a problem with your fetch operation: ' +
-  //           error.message,
-  //       );
-  //     });
-  // };
-
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <View style={styles.body}>
-        <View style={styles.container}>
-          <Text style={styles.header}>{movie.title}</Text>
-          {/* <Image source={{uri: `${movie.poster_path}`}} /> */}
+        <View>
           <TextInput
             style={styles.input}
             onChangeText={handleOnChangeSearch}
             value={searchTerm}
             placeholder="Search movie"
           />
-          {/* <Button title="Search Movie" onPress={handleSearch} /> */}
+          <Button title="Search Movie" onPress={handleSearch} />
         </View>
-        <Image
-          source={{
-            uri: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
-          }}
-          style={{maxWidth: '100%', height: '80%'}}
-        />
+        <ScrollView style={styles.scrollView}>
+          {totalMovieResults > 0 &&
+            movies.map(item => (
+              <Image
+                source={{
+                  uri: `https://image.tmdb.org/t/p/original/${item.poster_path}`,
+                }}
+                style={styles.posterBox}
+              />
+            ))}
+          <Text style={styles.messageStyle}>{message}</Text>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -90,8 +92,11 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   container: {
-    marginTop: 20,
-    marginBottom: 10,
+    flexGrow: 1,
+  },
+  contentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     fontSize: 20,
@@ -102,6 +107,25 @@ const styles = StyleSheet.create({
     height: 40,
     padding: 6,
     borderWidth: 1,
+  },
+  messageStyle: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '600',
+    color: 'red',
+    flex: 1,
+    marginTop: 20,
+  },
+  posterBox: {
+    maxWidth: 400,
+    height: 600,
+    marginBottom: '2%',
+  },
+  scrollView: {
+    height: '100%',
+    width: '100%',
+    alignSelf: 'center',
+    borderColor: 'black',
   },
 });
 
