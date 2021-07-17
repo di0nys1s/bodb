@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {API_URL, API_KEY} from '@env';
+import * as Progress from 'react-native-progress';
+import {API_KEY} from '@env';
 
 import {
   Button,
@@ -17,6 +18,7 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [message, setMessage] = useState('');
   const [totalMovieResults, setTotalMovieResults] = useState(undefined);
+  const [isDisplayLoading, setIsDisplayLoading] = useState(false);
 
   const handleOnChangeSearch = term => {
     setSearchTerm(term);
@@ -24,16 +26,20 @@ const App = () => {
 
   const handleSearch = () => {
     if (searchTerm) {
-      const url = `${API_URL}/search/movie?api_key=${API_KEY}&query=${searchTerm}`;
+      setIsDisplayLoading(true);
+      setMovies([]);
+      const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${searchTerm}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
           const {results, total_results: totalResults} = data;
           setTotalMovieResults(totalResults);
           if (totalResults > 0) {
+            setIsDisplayLoading(false);
             setMovies(results);
           }
           if (totalResults === 0) {
+            setIsDisplayLoading(false);
             setMovies([]);
             setMessage('Movies not found');
             setTimeout(() => {
@@ -68,6 +74,14 @@ const App = () => {
           />
           <Button title="Search Movie" onPress={handleSearch} />
         </View>
+        {isDisplayLoading && (
+          <Progress.Bar
+            style={styles.progressBar}
+            indeterminate={true}
+            progress={0.5}
+            width={200}
+          />
+        )}
         <ScrollView style={styles.scrollView}>
           {totalMovieResults > 0 &&
             movies.map(item => (
@@ -115,6 +129,11 @@ const styles = StyleSheet.create({
     color: 'red',
     flex: 1,
     marginTop: 20,
+  },
+  progressBar: {
+    position: 'absolute',
+    top: '30%',
+    left: '25%',
   },
   posterBox: {
     maxWidth: 400,
